@@ -4,8 +4,8 @@
 }
 
 :root {
-	--background: #ffffff;
-	--foreground: #121212;
+	--background: #121212;
+	--foreground: #ffffff;
 
 	--ease-fluid: cubic-bezier(0.65, 0.05, 0.35, 0.95);
 	--ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
@@ -47,7 +47,6 @@ body {
 }
 
 img {
-	max-width: 100%;
 	display: block;
 }
 
@@ -103,7 +102,8 @@ a:hover::after {
 
 		img {
 			position: absolute;
-			width: 100%;
+			left: 0;
+			width: 150%;
 			height: 100%;
 			object-fit: cover;
 		}

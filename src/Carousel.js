@@ -1,5 +1,5 @@
 import gsap from 'gsap';
-import { horizontalLoop } from './utils';
+import { horizontalLoop, slideImgUpdate } from './utils';
 
 export default class Carousel {
 	constructor() {
@@ -26,8 +26,8 @@ export default class Carousel {
 	}
 
 	setupEventListeners() {
-		this.nextBtn.addEventListener('click', () => this.loop.next({ duration: 1.6, ease: 'expo' }));
-		this.prevBtn.addEventListener('click', () => this.loop.previous({ duration: 1.6, ease: 'expo' }));
+		this.nextBtn.addEventListener('click', () => this.loop.next({ duration: 1.6, ease: 'power3.out' }));
+		this.prevBtn.addEventListener('click', () => this.loop.previous({ duration: 1.6, ease: 'power3.out' }));
 	}
 
 	createCarousel() {
@@ -39,7 +39,7 @@ export default class Carousel {
 			onChange: (slide, index) => {
 				console.log(slide, index);
 				if (this.state.activeSlide) {
-					gsap.to('.--active', { opacity: 0.25 });
+					gsap.to('.--active', { opacity: 0.7 });
 					this.state.activeSlide.classList.remove('--active');
 				}
 				slide.classList.add('--active');
@@ -47,7 +47,7 @@ export default class Carousel {
 				gsap.timeline()
 					.to('.--active', {
 						opacity: 1,
-						ease: 'expo.out',
+						ease: 'power2.inOut',
 					})
 					.progress(this.state.firstTime ? 1 : 0);
 			},
@@ -55,7 +55,7 @@ export default class Carousel {
 
 		// each slide can function as a button to activate itself
 		this.slides.forEach((slide, i) => {
-			gsap.set(slide, { opacity: i === 0 ? 1 : 0.25 });
+			gsap.set(slide, { opacity: i === 0 ? 1 : 0.7 });
 			slide.addEventListener('click', () => this.loop.toIndex(i, { duration: 1, ease: 'expo' }));
 		});
 

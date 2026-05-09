@@ -4,6 +4,18 @@ import InertiaPlugin from 'gsap/InertiaPlugin';
 
 gsap.registerPlugin(Draggable, InertiaPlugin);
 
+export function slideImgUpdate(items) {
+	items = gsap.utils.toArray(items);
+	items.forEach((slide) => {
+		const rect = slide.getBoundingClientRect();
+		const prog = gsap.utils.mapRange(-rect.width, window.innerWidth, 0, 1, rect.x);
+		const val = gsap.utils.clamp(0, 1, prog);
+		gsap.set(slide.querySelector('img'), {
+			xPercent: gsap.utils.interpolate(0, -50, val),
+		});
+	});
+}
+
 /*
 This helper function makes a group of elements animate along the x-axis in a seamless, responsive loop.
 
@@ -31,6 +43,7 @@ export function horizontalLoop(items, config) {
 				onUpdate:
 					onChange &&
 					function () {
+						slideImgUpdate(items);
 						let i = tl.closestIndex();
 						if (lastIndex !== i) {
 							lastIndex = i;
