@@ -14,6 +14,7 @@ export default class Carousel {
 		this.nextBtn = this.nav.querySelector('.carousel-next');
 		this.state = {
 			activeSlide: null,
+			activeIndex: 0,
 		};
 		this.pathWidth = (this.slides.length - 1) * 5 + 6;
 		this.init();
@@ -21,11 +22,17 @@ export default class Carousel {
 
 	init() {
 		console.log('Carousel initialised');
-		gsap.set(this.track, { 'scroll-snap-type': 'none', overflow: 'hidden' });
+		gsap.set(this.track, { 'scroll-snap-type': 'none', overflow: 'visible' });
 		gsap.set(this.nav, { display: 'block' });
-		gsap.set('.carousel-progress', { attr: { viewBox: '-1 -1 ' + (this.pathWidth + 2) + ' 2' } });
+		gsap.set(this.slides, {
+			perspective: 999,
+			transformOrigin: '50% 50% 0',
+			transformStyle: 'preserve-3d',
+			willChange: 'transform,opacity',
+		});
+		gsap.set('.carousel-progress', { display: 'block', attr: { viewBox: '-1 -1 ' + (this.pathWidth + 2) + ' 2' } });
 		gsap.set('.carousel-progress path', { attr: { d: 'M0,0 ' + this.pathWidth + ',0' } });
-		this.updateProgress(0, 0);
+		this.updateProgress(0);
 
 		this.createCarousel();
 		this.setupEventListeners();
@@ -46,35 +53,51 @@ export default class Carousel {
 				this.state.activeSlide && this.state.activeSlide.classList.remove('active');
 				slide.classList.add('active');
 				this.state.activeSlide = slide;
-				this.updateProgress(index);
+				this.state.activeIndex = index;
+				this.updateProgress();
 			},
 		});
 
 		// each slide can function as a button to activate itself
 		this.slides.forEach((slide, i) => {
-			gsap.set(slide, { opacity: i === 0 ? 1 : 0.7 });
-			slide.addEventListener('click', () => this.loop.toIndex(i, { duration: 1, ease: 'expo' }));
+			const imgWrapper = slide.querySelector('.carousel-item__inner');
+
+			imgWrapper.addEventListener('click', () => {
+				this.loop.toIndex(i, { duration: 1.6, ease: 'power3.out' });
+			});
+
+			imgWrapper.addEventListener('pointerover', () => {
+				gsap.to('.carousel-item img', {
+					opacity: (i, t) => (t === slide.querySelector('img') ? 1 : 0.5),
+					duration: 0.3,
+					ease: 'power1.inOut',
+				});
+			});
+
+			imgWrapper.addEventListener('pointerout', () => {
+				gsap.to('.carousel-item img', { opacity: 1, duration: 0.3, ease: 'power1.inOut' });
+			});
 		});
 
 		this.loop.toIndex(0, { duration: 0 });
-		slideImgUpdate(this.slides);
 
 		Observer.create({
 			target: '.carousel',
 			type: 'wheel',
 			onLeft: (o) => {
-				if (!gsap.isTweening(this.loop) && o.deltaX < -4) this.loop.next({ duration: 1.2, ease: 'power3.out' });
+				if (!gsap.isTweening(this.loop) && o.deltaX < -4) this.loop.next({ duration: 1.6, ease: 'power3.out' });
 			},
 			onRight: (o) => {
-				if (!gsap.isTweening(this.loop) && o.deltaX > 4) this.loop.previous({ duration: 1.2, ease: 'power3.out' });
+				if (!gsap.isTweening(this.loop) && o.deltaX > 4) this.loop.previous({ duration: 1.6, ease: 'power3.out' });
 			},
 		});
 	}
 
-	updateProgress(index, dur) {
+	// sets svg path appearance to show carousel progress
+	updateProgress(dur) {
 		let str = '';
 		for (let i = 0; i < this.slides.length; i++) {
-			str += i == index ? 6 : 0.5;
+			str += i === this.state.activeIndex ? 6 : 0.5;
 			str += ' ' + 4.5 + ' ';
 		}
 		gsap.to('.carousel-progress path', {

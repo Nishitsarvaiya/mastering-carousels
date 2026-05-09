@@ -8,16 +8,18 @@ export function slideImgUpdate(items) {
 	items = gsap.utils.toArray(items);
 	items.forEach((slide) => {
 		const rect = slide.getBoundingClientRect();
-		const prog = gsap.utils.mapRange(-rect.width, window.innerWidth, 0, 1, rect.x);
+		const prog = gsap.utils.mapRange(-rect.width, innerWidth, 0, 1, rect.x);
 		const val = gsap.utils.clamp(0, 1, prog);
 
 		gsap.set(slide.querySelector('.carousel-item__inner'), {
-			scale: gsap.utils.interpolate(0.5, 1.5, gsap.utils.wrapYoyo(0, 0.5, val)),
+			rotateY: gsap.utils.interpolate(45, -45, val),
+			scale: gsap.utils.interpolate(0.7, 1.5, gsap.utils.wrapYoyo(0, 0.5, val)),
+			z: gsap.utils.interpolate(-90, -300, gsap.utils.wrapYoyo(0, 0.5, val)),
 		});
 
 		gsap.set(slide.querySelector('img'), {
-			xPercent: gsap.utils.interpolate(0, -50, val),
-			scale: gsap.utils.interpolate(1.5, 0.5, gsap.utils.wrapYoyo(0, 0.5, val)),
+			xPercent: gsap.utils.interpolate(0, -33, val),
+			scale: gsap.utils.interpolate(1.5, 0.7, gsap.utils.wrapYoyo(0, 0.5, val)),
 		});
 	});
 }
