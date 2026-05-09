@@ -1,5 +1,8 @@
 import gsap from 'gsap';
 import { horizontalLoop, slideImgUpdate } from './utils';
+import { Observer } from 'gsap/Observer';
+
+gsap.registerPlugin(Observer);
 
 export default class Carousel {
 	constructor() {
@@ -11,15 +14,18 @@ export default class Carousel {
 		this.nextBtn = this.nav.querySelector('.carousel-next');
 		this.state = {
 			activeSlide: null,
-			firstTime: true,
 		};
+		this.pathWidth = (this.slides.length - 1) * 5 + 6;
 		this.init();
 	}
 
 	init() {
 		console.log('Carousel initialised');
-		gsap.set(this.track, { 'scroll-snap-type': 'none', overflow: 'visible' });
+		gsap.set(this.track, { 'scroll-snap-type': 'none', overflow: 'hidden' });
 		gsap.set(this.nav, { display: 'block' });
+		gsap.set('.carousel-progress', { attr: { viewBox: '-1 -1 ' + (this.pathWidth + 2) + ' 2' } });
+		gsap.set('.carousel-progress path', { attr: { d: 'M0,0 ' + this.pathWidth + ',0' } });
+		this.updateProgress(0, 0);
 
 		this.createCarousel();
 		this.setupEventListeners();
@@ -37,19 +43,10 @@ export default class Carousel {
 			center: true, // snap the active slide to the center
 			draggable: true, // enable dragging
 			onChange: (slide, index) => {
-				console.log(slide, index);
-				if (this.state.activeSlide) {
-					gsap.to('.--active', { opacity: 0.7 });
-					this.state.activeSlide.classList.remove('--active');
-				}
-				slide.classList.add('--active');
+				this.state.activeSlide && this.state.activeSlide.classList.remove('active');
+				slide.classList.add('active');
 				this.state.activeSlide = slide;
-				gsap.timeline()
-					.to('.--active', {
-						opacity: 1,
-						ease: 'power2.inOut',
-					})
-					.progress(this.state.firstTime ? 1 : 0);
+				this.updateProgress(index);
 			},
 		});
 
@@ -60,6 +57,29 @@ export default class Carousel {
 		});
 
 		this.loop.toIndex(0, { duration: 0 });
-		this.state.firstTime = false;
+		slideImgUpdate(this.slides);
+
+		Observer.create({
+			target: '.carousel',
+			type: 'wheel',
+			onLeft: (o) => {
+				if (!gsap.isTweening(this.loop) && o.deltaX < -4) this.loop.next({ duration: 1.2, ease: 'power3.out' });
+			},
+			onRight: (o) => {
+				if (!gsap.isTweening(this.loop) && o.deltaX > 4) this.loop.previous({ duration: 1.2, ease: 'power3.out' });
+			},
+		});
+	}
+
+	updateProgress(index, dur) {
+		let str = '';
+		for (let i = 0; i < this.slides.length; i++) {
+			str += i == index ? 6 : 0.5;
+			str += ' ' + 4.5 + ' ';
+		}
+		gsap.to('.carousel-progress path', {
+			duration: dur == null ? 0.5 : dur,
+			attr: { 'stroke-dasharray': str },
+		});
 	}
 }
