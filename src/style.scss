@@ -81,7 +81,7 @@ a:hover::after {
 	flex-direction: column;
 
 	&-track {
-		width: 75vw;
+		width: 100vw;
 		height: 80vh;
 		position: relative;
 		gap: 10px;
@@ -93,14 +93,11 @@ a:hover::after {
 
 	&-item {
 		position: relative;
-		width: 100%;
-		height: 100%;
 		flex: 0 0 75%;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		color: white;
 		scroll-snap-align: center;
 		overflow: hidden;
 
